@@ -30,8 +30,12 @@
   </div>
   <!-- Tasks -->
   <div class="w-full flex text-(--light) pt-10 flex-col items-center gap-3">
-    <div class="bg-black/30 rounded-lg w-2xl px-5 py-3 gap-1 flex flex-col max-h-30 md:max-h-45 lg:max-h-55 xl:max-h-60 2xl:max-h-120 overflow-y-auto">
-      <p class="pb-3">Next task...</p>
+    <div
+      class="bg-black/30 rounded-lg w-2xl px-5 py-3 gap-1 flex flex-col max-h-30 md:max-h-45 lg:max-h-55 xl:max-h-60 2xl:max-h-120 overflow-y-auto">
+      <div class="flex w-full justify-between items-center">
+        <p class="pb-3 text-md">Next task...</p>
+        <button type="button" class="bg-black/30 flex w-fit h-fit p-1 rounded-md cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75" title="Clear tasks"><i class="fa-solid fa-trash-can text-md"></i></button>
+      </div>
       <p
         class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
         Finish Your Homework</p>
