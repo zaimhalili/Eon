@@ -14,85 +14,118 @@
 
 <body
   class="h-screen w-screen overflow-hidden bg-black/80 bg-[url('/cyberpunk.jpg')] bg-blend-overlay bg-cover bg-center bg-no-repeat flex-col flex backdrop-blur-sm px-10 py-5">
-  <div class="flex w-full justify-between">
-    <h1 class="text-md text-(--light) cursor-default">Eon</h1>
-    <p class="text-md text-(--light) cursor-default" title="Current time" id="clock"></p>
-  </div>
-  <!-- Timer -->
-  <div class="flex items-center justify-center w-full text-(--light) flex-col pt-10">
-    <p class="text-[10rem] cursor-default">20:25</p>
-    <div class="flex gap-5">
-      <button
-        class="rounded-sm border-2 py-2 px-3 cursor-pointer text-(--light) border-(--light) hover:bg-(--light)  hover:text-(--mid) transition active:scale-90 duration-75">Restart</button>
-      <button
-        class="rounded-sm border-2 py-2 px-3 cursor-pointer text-(--light) border-(--light) hover:bg-(--light) hover:text-(--mid) transition active:scale-90 duration-75">Pause</button>
-    </div>
-  </div>
-  <!-- Tasks -->
-  <div class="w-full flex text-(--light) pt-10 flex-col items-center gap-3">
-    <div
-      class="bg-black/30 rounded-lg w-2xl px-5 py-3 gap-1 flex flex-col max-h-30 md:max-h-45 lg:max-h-55 xl:max-h-60 2xl:max-h-120 overflow-y-auto">
-      <div class="flex w-full justify-between items-center">
-        <p class="pb-3 text-md">Next task...</p>
-        <button type="button" class="bg-black/30 flex w-fit h-fit p-1 rounded-md cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75" title="Clear tasks"><i class="fa-solid fa-trash-can text-md"></i></button>
+  <div class="flex min-h-dvh w-full flex-col justify-between gap-5">
+    <header class="flex w-full items-center justify-between gap-4">
+      <h1 class="cursor-default text-base">Eon</h1>
+      <p class="cursor-default text-base text-(--light)" title="Current time" id="clock"></p>
+    </header>
+
+    <main class="flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden">
+      <section class="flex w-full flex-col items-center gap-5 text-center" aria-label="Timer">
+        <p id="timerDisplay"
+          class="timer-size w-full cursor-default text-center leading-none text-(--light)">00:00</p>
+        <p id="timerStatus" class="min-h-6 text-sm text-(--light)/80">Add a task to begin.</p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button id="startPauseButton" type="button"
+            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Start</button>
+          <button id="restartButton" type="button"
+            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Restart</button>
+          <button id="skipButton" type="button"
+            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Skip</button>
+        </div>
+      </section>
+
+      <section id="tasksPanel"
+        class="flex w-full max-w-2xl flex-col gap-3 rounded-lg bg-black/50 px-4 py-4 shadow-2xl sm:px-5"
+        aria-label="Tasks">
+        <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-end">
+          <label class="flex flex-1 flex-col gap-2 text-xs text-(--light)/80">
+            Task
+            <input id="taskNameInput" type="text" placeholder="Finish your homework"
+              class="w-full rounded-sm border border-(--light) px-3 py-2 text-sm text-(--light) outline-none placeholder:text-(--light)/50 focus:border-(--mid)" />
+          </label>
+          <label class="flex w-full flex-col gap-2 text-xs text-(--light)/80 sm:w-32">
+            Minutes
+            <input id="taskMinutesInput" type="number" min="1" max="240" value="25"
+              class="w-full rounded-sm border border-(--light) px-3 py-2 text-sm text-(--light) outline-none focus:border-(--mid)" />
+          </label>
+          <button id="addTaskButton" type="button"
+            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">
+            Add
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button id="breakToggleButton" type="button"
+            class="flex items-center justify-center gap-2 rounded-sm border border-(--light) px-3 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">
+            <i class="fa-solid fa-mug-hot"></i>
+            Break: <span id="breakMinutesLabel">5</span> min
+          </button>
+          <div id="breakControls" class="hidden flex-col gap-2 sm:flex-row sm:items-center">
+            <label class="flex items-center gap-2 text-xs text-(--light)/80">
+              Break minutes
+              <input id="breakMinutesInput" type="number" min="1" max="60" value="5"
+                class="w-24 rounded-sm border border-(--light) bg-(--dark) px-3 py-2 text-sm text-(--light) outline-none focus:border-(--mid)" />
+            </label>
+          </div>
+          <button id="clearTasksButton" type="button"
+            class="flex items-center justify-center gap-2 rounded-sm border border-(--light) px-3 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95"
+            title="Clear tasks">
+            <i class="fa-solid fa-trash-can"></i>
+            Clear
+          </button>
+        </div>
+
+        <div class="flex w-full flex-col gap-2 overflow-y-auto pr-1 task-list-height" id="tasksList"
+          aria-live="polite"></div>
+      </section>
+    </main>
+
+    <nav class="flex w-full items-center justify-between gap-4" aria-label="Session controls">
+      <div class="flex gap-3">
+        <button id="minimalModeButton" type="button"
+          class="flex h-11 w-11 absolute bottom-5 left-10 items-center justify-center rounded-md bg-black/30 text-(--light) transition duration-75 hover:text-(--mid) active:scale-95"
+          title="Minimalistic Mode">
+          <i class="fa-solid fa-face-smile"></i>
+        </button>
+        <button id="quranButton" type="button"
+          class="flex h-11 w-11 absolute bottom-20 left-10 items-center justify-center rounded-md bg-black/30 text-(--light) transition duration-75 hover:text-(--mid) active:scale-95"
+          title="Qur'an">
+          <i class="fa-solid fa-music"></i>
+        </button>
       </div>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-      <p
-        class="flex w-full px-5 py-3 border-(--light) border text-sm rounded-md hover:bg-black transition duration-75 cursor-pointer">
-        Finish Your Homework</p>
-    </div>
+      <div class="flex gap-3">
+        <button id="fullscreenButton" type="button"
+          class="flex h-11 w-11 absolute bottom-20 right-10 items-center justify-center rounded-md bg-black/30 text-(--light) transition duration-75 hover:text-(--mid) active:scale-95"
+          title="Full screen">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+        <button type="button"
+          class="flex h-11 w-11 absolute bottom-5 right-10 items-center justify-center rounded-md bg-black/30 text-(--light) transition duration-75 hover:text-(--mid) active:scale-95"
+          title="Settings">
+          <i class="fa-solid fa-user-gear"></i>
+        </button>
+      </div>
+    </nav>
   </div>
 
-  <!-- Side buttons -->
-
-  <!-- Left buttons -->
-  <button type="button"
-    class="bg-black/30 flex w-fit h-fit p-3 rounded-md absolute left-10 bottom-20 cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75"
-    title="Minimalistic Mode">
-    <i class="fa-solid fa-face-smile"></i>
-  </button>
-  <button type="button"
-    class="bg-black/30 flex w-fit h-fit p-3 rounded-md absolute left-10 bottom-5 cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75"
-    title="Qur'an">
-    <i class="fa-solid fa-music"></i>
-  </button>
-  <!-- Right buttons -->
-  <button type="button"
-    class="bg-black/30 flex w-fit h-fit p-3 rounded-md absolute right-10 bottom-20 cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75"
-    title="Press (F) for full screen"><i class="fa-solid fa-expand"></i></button>
-  <button type="button"
-    class="bg-black/30 flex w-fit h-fit p-3 rounded-md absolute right-10 bottom-5 cursor-pointer hover:text-(--mid) text-(--light) active:scale-95 transition duration-75"
-    title="Settings"><i class="fa-solid fa-user-gear"></i></button>
-
+  <aside id="quranSidebar"
+    class="fixed inset-y-0 left-0 z-20 flex w-full max-w-sm -translate-x-full flex-col gap-6 bg-(--dark) px-6 py-6 text-(--light) transition-transform duration-300 sm:px-8"
+    aria-hidden="true">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="text-base">Qur'an</h2>
+      <button id="closeQuranButton" type="button"
+        class="flex h-10 w-10 items-center justify-center rounded-md border border-(--light) text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95 cursor-pointer"
+        title="Close Qur'an sidebar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="flex flex-col gap-4 text-sm leading-7 text-(--light)/85">
+      <p>Use this space for a calm recitation link, playlist, or ayah during focused breaks.</p>
+      <a class="rounded-sm border border-(--light) px-4 py-3 text-center text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid)"
+        href="https://quran.com" target="_blank" rel="noreferrer">Open Quran.com</a>
+    </div>
+  </aside>
 
   <script type="module" src="/src/main.js"></script>
 </body>
