@@ -1,4 +1,5 @@
 const clock = document.getElementById("clock");
+const quranQuote = document.getElementById("quranQuote");
 const timerDisplay = document.getElementById("timerDisplay");
 const timerStatus = document.getElementById("timerStatus");
 const startPauseButton = document.getElementById("startPauseButton");
@@ -26,6 +27,12 @@ let mode = "idle";
 let secondsLeft = 0;
 let initialSeconds = 0;
 let timerId;
+let audioContext;
+
+const fallbackQuote = {
+    text: "So remember Me; I will remember you.",
+    reference: "Qur'an 2:152",
+};
 
 function updateClock() {
     const now = new Date();
@@ -49,6 +56,64 @@ function normalizeMinutes(value, fallback, max) {
     }
 
     return Math.min(Math.max(minutes, 1), max);
+}
+
+function setStartPauseButton(isRunning) {
+    const icon = startPauseButton.querySelector("i");
+    const label = startPauseButton.querySelector(".control-label");
+    const nextLabel = isRunning ? "Pause" : "Start";
+
+    startPauseButton.dataset.state = isRunning ? "pause" : "start";
+    startPauseButton.title = nextLabel;
+    startPauseButton.setAttribute("aria-label", nextLabel);
+    icon.className = isRunning ? "fa-solid fa-pause" : "fa-solid fa-play";
+    label.textContent = nextLabel;
+}
+
+function getAudioContext() {
+    audioContext ??= new (window.AudioContext || window.webkitAudioContext)();
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    return audioContext;
+}
+
+function playToneSequence(notes) {
+    const context = getAudioContext();
+    const now = context.currentTime;
+
+    notes.forEach(({ frequency, start, duration }) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, now + start);
+        gain.gain.setValueAtTime(0.0001, now + start);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now + start);
+        oscillator.stop(now + start + duration + 0.03);
+    });
+}
+
+function playTaskFinishedSound() {
+    playToneSequence([
+        { frequency: 523.25, start: 0, duration: 0.14 },
+        { frequency: 659.25, start: 0.16, duration: 0.18 },
+    ]);
+}
+
+function playSessionFinishedSound() {
+    playToneSequence([
+        { frequency: 523.25, start: 0, duration: 0.14 },
+        { frequency: 659.25, start: 0.16, duration: 0.14 },
+        { frequency: 783.99, start: 0.32, duration: 0.34 },
+    ]);
 }
 
 function getBreakSeconds() {
@@ -100,7 +165,7 @@ function setTimer(nextMode, seconds, shouldRun = false) {
     secondsLeft = seconds;
     initialSeconds = seconds;
     timerDisplay.textContent = formatTime(secondsLeft);
-    startPauseButton.textContent = shouldRun ? "Pause" : "Start";
+    setStartPauseButton(shouldRun);
     updateStatus();
     renderTasks();
 
@@ -135,7 +200,7 @@ function startTimer() {
     }
 
     window.clearInterval(timerId);
-    startPauseButton.textContent = "Pause";
+    setStartPauseButton(true);
     timerId = window.setInterval(() => {
         secondsLeft -= 1;
         timerDisplay.textContent = formatTime(Math.max(secondsLeft, 0));
@@ -148,13 +213,14 @@ function startTimer() {
 
 function pauseTimer() {
     window.clearInterval(timerId);
-    startPauseButton.textContent = "Start";
+    setStartPauseButton(false);
 }
 
 function completeBlock() {
     pauseTimer();
 
     if (mode === "focus" && currentTaskIndex < tasks.length - 1) {
+        playTaskFinishedSound();
         currentTaskIndex += 1;
         setTimer("break", getBreakSeconds(), true);
         return;
@@ -167,6 +233,9 @@ function completeBlock() {
     }
 
     mode = "idle";
+    if (tasks.length) {
+        playSessionFinishedSound();
+    }
     secondsLeft = 0;
     initialSeconds = 0;
     timerDisplay.textContent = "00:00";
@@ -234,6 +303,33 @@ function skipBlock() {
     completeBlock();
 }
 
+function updateMinuteInput(input, step = 0) {
+    const max = Number.parseInt(input.getAttribute("max"), 10);
+    const fallback = input === breakMinutesInput ? 5 : 25;
+    const minutes = normalizeMinutes(input.value, fallback, max) + step;
+    input.value = String(Math.min(Math.max(minutes, 1), max));
+
+    if (input === breakMinutesInput) {
+        breakMinutesLabel.textContent = input.value;
+    }
+}
+
+async function loadQuranQuote() {
+    try {
+        const response = await fetch("https://api.alquran.cloud/v1/ayah/random/en.asad");
+
+        if (!response.ok) {
+            throw new Error("Quote request failed");
+        }
+
+        const { data } = await response.json();
+        const reference = `Qur'an ${data.surah.number}:${data.numberInSurah}`;
+        quranQuote.textContent = `"${data.text}" - ${reference}`;
+    } catch {
+        quranQuote.textContent = `"${fallbackQuote.text}" - ${fallbackQuote.reference}`;
+    }
+}
+
 function toggleQuranSidebar(forceOpen) {
     const shouldOpen = forceOpen ?? quranSidebar.classList.contains("-translate-x-full");
     quranSidebar.classList.toggle("-translate-x-full", !shouldOpen);
@@ -252,7 +348,9 @@ async function toggleFullscreen() {
 }
 
 startPauseButton.addEventListener("click", () => {
-    if (startPauseButton.textContent === "Pause") {
+    getAudioContext();
+
+    if (startPauseButton.dataset.state === "pause") {
         pauseTimer();
         return;
     }
@@ -280,15 +378,28 @@ taskMinutesInput.addEventListener("keydown", (event) => {
         addTask();
     }
 });
+taskMinutesInput.addEventListener("blur", () => {
+    updateMinuteInput(taskMinutesInput);
+});
 breakToggleButton.addEventListener("click", () => {
     breakControls.classList.toggle("hidden");
 });
 breakMinutesInput.addEventListener("input", () => {
-    const minutes = normalizeMinutes(breakMinutesInput.value, 5, 60);
-    breakMinutesLabel.textContent = String(minutes);
+    updateMinuteInput(breakMinutesInput);
+});
+breakMinutesInput.addEventListener("blur", () => {
+    updateMinuteInput(breakMinutesInput);
 });
 minimalModeButton.addEventListener("click", () => {
     tasksPanel.classList.toggle("hidden");
+    document.body.classList.toggle("minimal-mode", tasksPanel.classList.contains("hidden"));
+    minimalModeButton.setAttribute("aria-pressed", String(tasksPanel.classList.contains("hidden")));
+});
+document.querySelectorAll("[data-minute-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.minuteTarget);
+        updateMinuteInput(input, Number.parseInt(button.dataset.minuteStep, 10));
+    });
 });
 quranButton.addEventListener("click", () => toggleQuranSidebar());
 closeQuranButton.addEventListener("click", () => toggleQuranSidebar(false));
@@ -309,5 +420,7 @@ window.addEventListener("beforeunload", (event) => {
 
 setInterval(updateClock, 1000);
 updateClock();
+setStartPauseButton(false);
+loadQuranQuote();
 renderTasks();
 updateStatus();

@@ -22,21 +22,36 @@
 
     <main class="flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden">
       <section class="flex w-full flex-col items-center gap-5 text-center" aria-label="Timer">
+        <p id="quranQuote" class="quote-text min-h-6 max-w-3xl px-4 text-center text-sm leading-6 text-(--light)/85">
+          Loading a Qur'an quote...
+        </p>
         <p id="timerDisplay"
           class="timer-size w-full cursor-default text-center leading-none text-(--light)">00:00</p>
         <p id="timerStatus" class="min-h-6 text-sm text-(--light)/80">Add a task to begin.</p>
         <div class="flex flex-wrap items-center justify-center gap-3">
           <button id="startPauseButton" type="button"
-            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Start</button>
+            class="timer-control-button rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95"
+            title="Start">
+            <i class="fa-solid fa-play"></i>
+            <span class="control-label">Start</span>
+          </button>
           <button id="restartButton" type="button"
-            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Restart</button>
+            class="timer-control-button rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95"
+            title="Restart">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span class="control-label">Restart</span>
+          </button>
           <button id="skipButton" type="button"
-            class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">Skip</button>
+            class="timer-control-button rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95"
+            title="Skip">
+            <i class="fa-solid fa-forward-step"></i>
+            <span class="control-label">Skip</span>
+          </button>
         </div>
       </section>
 
       <section id="tasksPanel"
-        class="flex w-full max-w-2xl flex-col gap-3 rounded-lg bg-black/50 px-4 py-4 shadow-2xl sm:px-5"
+        class="timer-menu flex w-full max-w-2xl flex-col gap-3 rounded-lg px-4 py-4 shadow-2xl sm:px-5"
         aria-label="Tasks">
         <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-end">
           <label class="flex flex-1 flex-col gap-2 text-xs text-(--light)/80">
@@ -46,8 +61,18 @@
           </label>
           <label class="flex w-full flex-col gap-2 text-xs text-(--light)/80 sm:w-32">
             Minutes
-            <input id="taskMinutesInput" type="number" min="1" max="240" value="25"
-              class="w-full rounded-sm border border-(--light) px-3 py-2 text-sm text-(--light) outline-none focus:border-(--mid)" />
+            <span class="minute-stepper">
+              <button class="minute-stepper-button" type="button" data-minute-target="taskMinutesInput"
+                data-minute-step="-1" title="Decrease task minutes">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <input id="taskMinutesInput" type="text" inputmode="numeric" min="1" max="240" value="25"
+                aria-label="Task minutes" />
+              <button class="minute-stepper-button" type="button" data-minute-target="taskMinutesInput"
+                data-minute-step="1" title="Increase task minutes">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </span>
           </label>
           <button id="addTaskButton" type="button"
             class="rounded-sm border border-(--light) px-4 py-2 text-sm text-(--light) transition duration-75 hover:bg-(--light) hover:text-(--mid) active:scale-95">
@@ -64,8 +89,18 @@
           <div id="breakControls" class="hidden flex-col gap-2 sm:flex-row sm:items-center">
             <label class="flex items-center gap-2 text-xs text-(--light)/80">
               Break minutes
-              <input id="breakMinutesInput" type="number" min="1" max="60" value="5"
-                class="w-24 rounded-sm border border-(--light) bg-(--dark) px-3 py-2 text-sm text-(--light) outline-none focus:border-(--mid)" />
+              <span class="minute-stepper w-32">
+                <button class="minute-stepper-button" type="button" data-minute-target="breakMinutesInput"
+                  data-minute-step="-1" title="Decrease break minutes">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <input id="breakMinutesInput" type="text" inputmode="numeric" min="1" max="60" value="5"
+                  aria-label="Break minutes" />
+                <button class="minute-stepper-button" type="button" data-minute-target="breakMinutesInput"
+                  data-minute-step="1" title="Increase break minutes">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </span>
             </label>
           </div>
           <button id="clearTasksButton" type="button"

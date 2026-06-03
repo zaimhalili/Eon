@@ -30,14 +30,95 @@ input {
   font: inherit;
 }
 
+.quote-text {
+  text-shadow: 0 1px 18px rgb(0 0 0 / 0.75);
+}
+
 .timer-size {
   font-size: clamp(4rem, 18vw, 10rem);
+  text-shadow: 0 6px 40px rgb(0 0 0 / 0.6);
 }
 
 .task-list-height {
   max-height: clamp(8rem, 24vh, 18rem);
 }
 
-button{
+.timer-menu {
+  border: 1px solid rgb(254 250 224 / 0.3);
+  background:
+    linear-gradient(135deg, rgb(254 250 224 / 0.13), rgb(40 54 24 / 0.34)),
+    rgb(0 0 0 / 0.32);
+  backdrop-filter: blur(22px) saturate(150%);
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 0.38),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+.timer-control-button {
+  display: inline-flex;
+  min-width: 7.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.minimal-mode .timer-control-button {
+  min-width: 0;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+}
+
+.minimal-mode .timer-control-button .control-label {
+  display: none;
+}
+
+.minute-stepper {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(3.25rem, 1fr) 2.25rem;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid rgb(254 250 224 / 0.8);
+  border-radius: 0.125rem;
+  background: rgb(0 0 0 / 0.22);
+}
+
+.minute-stepper:focus-within {
+  border-color: var(--mid);
+}
+
+.minute-stepper input {
+  width: 100%;
+  border: 0;
+  border-inline: 1px solid rgb(254 250 224 / 0.28);
+  background: transparent;
+  color: var(--light);
+  outline: 0;
+  padding: 0.5rem 0.2rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.minute-stepper-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--light);
+  transition:
+    background-color 75ms ease,
+    color 75ms ease,
+    transform 75ms ease;
+}
+
+.minute-stepper-button:hover {
+  background: var(--light);
+  color: var(--mid);
+}
+
+.minute-stepper-button:active {
+  transform: scale(0.94);
+}
+
+button {
   cursor: pointer;
 }
