@@ -33,6 +33,7 @@ const fallbackQuote = {
     text: "So remember Me; I will remember you.",
     reference: "Qur'an 2:152",
 };
+const totalQuranAyahs = 6236;
 
 function updateClock() {
     const now = new Date();
@@ -316,7 +317,10 @@ function updateMinuteInput(input, step = 0) {
 
 async function loadQuranQuote() {
     try {
-        const response = await fetch("https://api.alquran.cloud/v1/ayah/random/en.asad");
+        const randomAyah = Math.floor(Math.random() * totalQuranAyahs) + 1;
+        const response = await fetch(`https://api.alquran.cloud/v1/ayah/${randomAyah}/en.asad`, {
+            cache: "no-store",
+        });
 
         if (!response.ok) {
             throw new Error("Quote request failed");
